@@ -9,7 +9,6 @@ const calculateImageDimentions = (width, height, maxSize) => {
         newDimentions.width = parseInt(newDimentions.height * (width / height))
     }
     
-    console.log(newDimentions)
     return newDimentions
 }
 

@@ -3,10 +3,9 @@ require('dotenv').config({path: path.join(__dirname, '../../.env')})
 const mongoose = require('mongoose')
 const {DATABASE_URL} = process.env
 
-const connectionUrl = DATABASE_URL
-const databaseName = 'task-manager-api'
+const database = DATABASE_URL
 
-mongoose.connect(connectionUrl + '/' + databaseName, {
+mongoose.connect(database, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true, //search for database index

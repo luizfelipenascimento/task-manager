@@ -10,15 +10,14 @@ const {sendWelcomeEmail, sendCancelationEmail} = require('../emails/account')
 
 
 router.post('/users', async (req, res) => {
-    const user = new User(req.body)
     try {
+        const user = new User(req.body)
         await user.save()
         sendWelcomeEmail(user.email, user.name)
         const token = await user.generateAuthToken()
         res.status(201).send({user, token})
     } catch (e) {
-        console.log(e)
-        res.status(400).send(e)
+        res.status(400).send({error: e.message})
     } 
 })
 
@@ -93,7 +92,8 @@ router.get('/users/:id', auth, async (req, res) => {
 })
 
 router.patch('/users/me', auth, async (req, res) => {
-    const updates = Object.keys(req.body)
+    const {body:data} = req
+    const updates = Object.keys(data)
     const allowedUpdatesProperties = ['name', 'email', 'password', 'age']
     const isValidOperation = updates.every((updateKey) => allowedUpdatesProperties.includes(updateKey))
 
@@ -104,8 +104,8 @@ router.patch('/users/me', auth, async (req, res) => {
         return res.status(400).send( {error: 'invalid updates!'} )
 
     try {
-        const {user, data} = req
-        
+        const {user} = req
+
         //esse new true como parametro para options ira retornar o novo usuario atualizado como resposta do evento async
         //const user = await User.findByIdAndUpdate(id, data, { new: true, runValidators: true })
 
@@ -116,7 +116,7 @@ router.patch('/users/me', auth, async (req, res) => {
         res.send(user)
 
     } catch(e) {
-        res.status(400).send(e)
+        res.status(400).send(e.message)
     }
 })
 
@@ -148,6 +148,7 @@ const upload = multer({
 
 router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
     const {user, file} = req
+    
     const sharpImg = await sharp(file.buffer)
     const {width, height} = await sharpImg.png().metadata()
     const newImageDimentions = calculateImageDimentions(width, height, 350)

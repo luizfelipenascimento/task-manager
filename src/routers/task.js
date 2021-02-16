@@ -13,7 +13,7 @@ router.post('/tasks', auth, async (req, res) => {
         await task.save()
         res.status(201).send(task)
     } catch(e) {
-        res.status(400).send(e)
+        res.status(400).send({error: e.message})
     }
 
 })
@@ -66,7 +66,6 @@ router.get('/tasks/:id', auth, async (req, res) => {
         
         res.send(task)
     } catch(e) {
-        console.log(e)
         res.status(500)
     }
 })
@@ -98,8 +97,7 @@ router.patch('/tasks/:id', auth, async (req, res) => {
         res.send(task)
 
     } catch(e) {
-        console.log(e)
-        res.status(400).send(e)
+        res.status(400).send(e.message)
     }
 })
 
