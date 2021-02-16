@@ -228,7 +228,21 @@ test('Should sort tasks by updatedAt', async () => {
     const tasks = response.body
 
     for (let i = 1; i < tasks.length; i++) {
-        const compare = new Date(tasks[i - 1].updatedAt) < new Date(tasks[i].updatedAt)
+        const compare = new Date(tasks[i - 1].updatedAt) < new Date(tasks[i].createdAt)
         expect(compare).toBe(true)
     }
+})
+
+test('Should fetch page of tasks', async () => {
+    const response = await request(app)
+        .get('/tasks?limit=2&skip=1')
+        .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+        .send()
+        .expect(200)
+    
+    const tasks = response.body
+    expect(tasks).not.toBeNull()
+
+    expect(tasks[0].description).toEqual('second task')
+    expect(tasks[1].description).toEqual('third task')
 })
