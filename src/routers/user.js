@@ -2,11 +2,9 @@ const express = require('express')
 const User = require('../models/user')
 const router = new express.Router()
 const auth = require('../middleware/auth')
-const multer = require('multer')
 const sharp = require('sharp')
-const {calculateImageDimentions} = require('../helper/utils')
+const {calculateImageDimentions, upload} = require('../helper/utils')
 const {sendWelcomeEmail, sendCancelationEmail} = require('../emails/account')
-
 
 
 router.post('/users', async (req, res) => {
@@ -132,18 +130,7 @@ router.delete('/users/me', auth, async (req, res) => {
     }
 })
 
-const upload = multer({
-    limits: {
-        fileSize: 1e6
-    },
-    fileFilter(req, file, callback) {
-        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
-            callback(new Error('Please upload an image file'))
-            return
-        }
-        callback(undefined, true)
-    }
-})
+
 
 
 router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {

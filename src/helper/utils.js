@@ -1,3 +1,5 @@
+const multer = require('multer')
+
 const calculateImageDimentions = (width, height, maxSize) => {
     const newDimentions = {}
 
@@ -12,6 +14,21 @@ const calculateImageDimentions = (width, height, maxSize) => {
     return newDimentions
 }
 
+const upload = multer({
+    limits: {
+        fileSize: 1e6
+    },
+    fileFilter(req, file, callback) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+            callback(new Error('Please upload an image file'))
+            return
+        }
+        callback(undefined, true)
+    }
+})
+
+
 module.exports = {
-    calculateImageDimentions
+    calculateImageDimentions,
+    upload
 }

@@ -246,3 +246,24 @@ test('Should fetch page of tasks', async () => {
     expect(tasks[0].description).toEqual('second task')
     expect(tasks[1].description).toEqual('third task')
 })
+
+test('Should not find unknown task to post task image', async () => {
+    await request(app)
+        .post('/tasks/465465465454/image')
+        .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+        .attach('image', 'src/tests/fixtures/philly.jpg')
+        .expect(404)
+})
+
+test('Should allow post image to a task', async () => {
+    await request(app)
+        .post(`/tasks/${taskOne._id}/image`)
+        .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+        .attach('image', 'src/tests/fixtures/philly.jpg')
+        .expect(200)
+
+    const task = await Task.findById(taskOne._id)
+
+    expect(task.image).toEqual(expect.any(Buffer))
+    
+})

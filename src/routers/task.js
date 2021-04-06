@@ -2,6 +2,8 @@ const express = require('express')
 const Task = require('../models/task')
 const router = express.Router()
 const auth = require('../middleware/auth')
+const {upload} = require('../helper/utils')
+const sharp = require('sharp')
 
 router.post('/tasks', auth, async (req, res) => {
     const task = new Task({
@@ -92,7 +94,7 @@ router.patch('/tasks/:id', auth, async (req, res) => {
         
         updates.forEach(updateProperty =>  task[updateProperty] = data[updateProperty])
 
-        task.save()
+        await task.save()
 
         res.send(task)
 
@@ -113,6 +115,31 @@ router.delete('/tasks/:id', auth, async (req, res) => {
 
     } catch(e) {
         res.sendStatus(500)
+    }
+})
+
+router.post('/tasks/:id/image', auth, upload.single('image'), async (req, res) => {
+    const {user, file} = req
+
+    try {
+        const _id = req.params.id
+        const task = await Task.findOne({ _id, owner: user._id })
+
+        if (!task) {
+            return res.sendStatus(404)
+        }
+
+        const bufferImage = await sharp(file.buffer).png().toBuffer()
+
+        task.image = bufferImage
+
+        await task.save()
+
+        return res.sendStatus(200)
+
+    } catch(e) {
+        console.log(e.message)
+        res.status(500).send({error: e.message})
     }
 })
 
